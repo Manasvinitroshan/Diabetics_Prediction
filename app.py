@@ -1,22 +1,22 @@
-# app.py
-
 import streamlit as st
 import numpy as np
-import joblib
+import pickle
 
-# Load artifacts
 @st.cache_resource
 def load_artifacts():
-    model  = joblib.load('diabetes_model.joblib')
-    scaler = joblib.load('scaler.joblib')
+    with open('diabetes_model.pkl', 'rb') as f:
+        model = pickle.load(f)
+    with open('scaler.pkl', 'rb') as f:
+        scaler = pickle.load(f)
     return model, scaler
 
 model, scaler = load_artifacts()
 
 st.title("Diabetes Prediction")
-st.markdown("Enter the 8 features below and click **Predict**.")
+st.markdown(
+    "Enter the 8 clinical measurements below and click **Predict** to see the model’s output."
+)
 
-# inputs
 col1, col2 = st.columns(2)
 with col1:
     pregnancies = st.number_input("Pregnancies", 0, 20, 1)
@@ -34,6 +34,6 @@ if st.button("Predict"):
     x_scaled = scaler.transform(x)
     pred = model.predict(x_scaled)[0]
     if pred == 1:
-        st.error("🔴 Diabetic")
+        st.error("🔴 Prediction: Diabetic")
     else:
-        st.success("🟢 Non-diabetic")
+        st.success("🟢 Prediction: Non-diabetic")
